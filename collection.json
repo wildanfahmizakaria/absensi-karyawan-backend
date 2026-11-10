@@ -1,0 +1,1239 @@
+{
+  "info": {
+    "_postman_id": "c1f7284e-3362-4f7b-9e8a-mandala-absensi-api",
+    "name": "Sistem Absensi Karyawan CV Mandala Mahardika API",
+    "description": "Koleksi lengkap Postman Collection (v2.1.0) untuk REST API Sistem Absensi Karyawan CV Mandala Mahardika berbasis Node.js + Express.js.\n\nMendukung alur autentikasi JWT, check-in kamera live & GPS, check-out dengan perhitungan durasi otomatis (target 510 menit), sesi lintas tengah malam, permohonan koreksi absensi, manajemen karyawan (CRUD), laporan ekspor CSV/PDF, pengaturan sistem, dan log audit.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sample_session_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "sample_employee_id",
+      "value": "3",
+      "type": "string"
+    },
+    {
+      "key": "sample_correction_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        },
+        "description": "Pemeriksaan status server API absensi."
+      },
+      "response": []
+    },
+    {
+      "name": "1. Autentikasi (Auth)",
+      "description": "Endpoint login, logout, dan verifikasi profil pengguna aktif.",
+      "item": [
+        {
+          "name": "Login - Superadmin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "    console.log('Token Superadmin disimpan otomatis:', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"superadmin@mandalamahardika.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login sebagai Superadmin. Token otomatis tersimpan di variable {{token}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "    console.log('Token Admin disimpan otomatis:', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@mandalamahardika.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login sebagai Admin Operasional. Token otomatis tersimpan di variable {{token}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Karyawan (Budi Santoso)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "    console.log('Token Karyawan disimpan otomatis:', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"budi.santoso@mandalamahardika.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login sebagai Karyawan. Token otomatis tersimpan di variable {{token}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile Aktif (/me)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Melihat informasi profil dan role dari pengguna yang sedang login."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Keluar dari sesi absensi aktif."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Dashboard",
+      "description": "Ringkasan metrik kehadiran untuk Karyawan dan KPI operasional Admin.",
+      "item": [
+        {
+          "name": "Dashboard Karyawan",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dashboard/employee",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "dashboard",
+                "employee"
+              ]
+            },
+            "description": "Ringkasan personal karyawan: sesi aktif, menit kerja berjalan, ringkasan kehadiran bulan ini, dan 5 sesi terakhir."
+          },
+          "response": []
+        },
+        {
+          "name": "Dashboard Admin & Superadmin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dashboard/admin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "dashboard",
+                "admin"
+              ]
+            },
+            "description": "KPI operasional kehadiran hari ini: total karyawan aktif, hadir hari ini, sedang bertugas (open session), selesai bertugas, memenuhi durasi vs kurang durasi."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Transaksi Absensi (Attendance)",
+      "description": "Alur transaksi check-in, check-out, riwayat absensi, dan detail sesi.",
+      "item": [
+        {
+          "name": "Status Absensi Hari Ini (/today)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/attendance/today",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance",
+                "today"
+              ]
+            },
+            "description": "Mengecek apakah karyawan saat ini memiliki sesi aktif yang sedang berjalan (termasuk sesi yang check-in kemarin/lintas tengah malam) atau sudah selesai bertugas."
+          },
+          "response": []
+        },
+        {
+          "name": "Absen Masuk (Check-in)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": "",
+                  "description": "File swafoto dari kamera live (JPEG/PNG/WebP, max 5MB). Pilih file gambar pada tab Body Postman."
+                },
+                {
+                  "key": "latitude",
+                  "value": "-6.2087634",
+                  "type": "text",
+                  "description": "Garis lintang GPS (Wajib)"
+                },
+                {
+                  "key": "longitude",
+                  "value": "106.8455990",
+                  "type": "text",
+                  "description": "Garis bujur GPS (Wajib)"
+                },
+                {
+                  "key": "accuracy_m",
+                  "value": "12.50",
+                  "type": "text",
+                  "description": "Akurasi estimasi GPS dalam meter (Opsional)"
+                },
+                {
+                  "key": "notes",
+                  "value": "Mulai bertugas shift pagi di kantor",
+                  "type": "text",
+                  "description": "Catatan tambahan absensi (Opsional)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/attendance/check-in",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance",
+                "check-in"
+              ]
+            },
+            "description": "Melakukan check-in masuk kerja. Waktu transaksi ditetapkan oleh server. Mencegah check-in ganda jika masih ada sesi aktif."
+          },
+          "response": []
+        },
+        {
+          "name": "Absen Pulang (Check-out)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": "",
+                  "description": "Swafoto saat check-out (Opsional). Pilih file jika diperlukan."
+                },
+                {
+                  "key": "latitude",
+                  "value": "-6.2087610",
+                  "type": "text",
+                  "description": "Garis lintang GPS saat check-out (Wajib)"
+                },
+                {
+                  "key": "longitude",
+                  "value": "106.8456102",
+                  "type": "text",
+                  "description": "Garis bujur GPS saat check-out (Wajib)"
+                },
+                {
+                  "key": "accuracy_m",
+                  "value": "10.20",
+                  "type": "text",
+                  "description": "Akurasi GPS check-out dalam meter (Opsional)"
+                },
+                {
+                  "key": "notes",
+                  "value": "Selesai menyelesaikan seluruh tugas harian",
+                  "type": "text",
+                  "description": "Catatan saat pulang (Opsional)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/attendance/check-out",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance",
+                "check-out"
+              ]
+            },
+            "description": "Melakukan check-out pulang. Backend otomatis menghitung total durasi menit tanpa potongan istirahat, membandingkan dengan target 510 menit, dan menentukan status MEETS_MINIMUM atau BELOW_MINIMUM (tidak diblokir)."
+          },
+          "response": []
+        },
+        {
+          "name": "Daftar Riwayat Absensi",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/attendance?page=1&limit=15&start_date=2026-11-01&end_date=2026-11-30&duration_status=&user_id=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Nomor halaman (default: 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "15",
+                  "description": "Jumlah data per halaman (max: 100)"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-11-01",
+                  "description": "Filter tanggal check-in mulai (YYYY-MM-DD)"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-11-30",
+                  "description": "Filter tanggal check-in akhir (YYYY-MM-DD)"
+                },
+                {
+                  "key": "duration_status",
+                  "value": "",
+                  "description": "Filter status: IN_PROGRESS | MEETS_MINIMUM | BELOW_MINIMUM"
+                },
+                {
+                  "key": "user_id",
+                  "value": "",
+                  "description": "Filter user ID tertentu (Khusus Admin/Superadmin)"
+                }
+              ]
+            },
+            "description": "Mengambil riwayat absensi. Karyawan hanya dapat melihat miliknya sendiri, Admin dapat melihat seluruh karyawan."
+          },
+          "response": []
+        },
+        {
+          "name": "Detail Sesi Absensi",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/attendance/{{sample_session_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance",
+                "{{sample_session_id}}"
+              ]
+            },
+            "description": "Mengambil rincian data absensi: foto selfie check-in/out, koordinat GPS, akurasi, durasi riil, dan catatan."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Koreksi Absensi (Corrections)",
+      "description": "Pengajuan permohonan koreksi absensi oleh karyawan dan peninjauannya oleh Admin.",
+      "item": [
+        {
+          "name": "Daftar Permohonan Koreksi",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/attendance/corrections?page=1&limit=15&status=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance",
+                "corrections"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "15"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "PENDING | APPROVED | REJECTED"
+                }
+              ]
+            },
+            "description": "Melihat daftar permohonan koreksi absensi."
+          },
+          "response": []
+        },
+        {
+          "name": "Ajukan Permohonan Koreksi (Karyawan)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attendance_session_id\": 2,\n  \"reason\": \"Lupa check-out tepat waktu karena ada kendala jaringan seluler di lapangan\",\n  \"proposed_check_in_at\": null,\n  \"proposed_check_out_at\": \"2026-11-04 17:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/attendance/corrections",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance",
+                "corrections"
+              ]
+            },
+            "description": "Karyawan mengajukan penyesuaian waktu absensi dengan alasan wajib."
+          },
+          "response": []
+        },
+        {
+          "name": "Review Koreksi (Admin - Approve / Reject)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\",\n  \"note\": \"Disetujui berdasarkan konfirmasi penugasan resmi dari atasan lapangan.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/attendance/corrections/{{sample_correction_id}}/review",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance",
+                "corrections",
+                "{{sample_correction_id}}",
+                "review"
+              ]
+            },
+            "description": "Admin atau Superadmin menyetujui (APPROVED) atau menolak (REJECTED) koreksi. Jika disetujui, waktu dan evaluasi durasi sesi absensi terkait otomatis diperbarui dan dicatat di audit log."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Manajemen Karyawan (Admin CRUD)",
+      "description": "Kelola data pengguna karyawan (Create, Read, Update, Delete/Deactivate). Khusus Admin & Superadmin.",
+      "item": [
+        {
+          "name": "Daftar Karyawan (Index)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/employees?page=1&limit=10&search=&role=&is_active=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employees"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Cari nama, kode karyawan, atau email"
+                },
+                {
+                  "key": "role",
+                  "value": "",
+                  "description": "EMPLOYEE | ADMIN | SUPERADMIN"
+                },
+                {
+                  "key": "is_active",
+                  "value": "1",
+                  "description": "1 = Aktif, 0 = Nonaktif"
+                }
+              ]
+            },
+            "description": "Menampilkan daftar karyawan dengan pencarian dan filter."
+          },
+          "response": []
+        },
+        {
+          "name": "Tambah Karyawan Baru (Create)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employee_code\": \"EMP-010\",\n  \"full_name\": \"Dewi Lestari\",\n  \"email\": \"dewi.lestari@mandalamahardika.com\",\n  \"password\": \"password123\",\n  \"role\": \"EMPLOYEE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/employees",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employees"
+              ]
+            },
+            "description": "Menambahkan akun karyawan baru ke dalam sistem."
+          },
+          "response": []
+        },
+        {
+          "name": "Detail Karyawan (Read)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/employees/{{sample_employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employees",
+                "{{sample_employee_id}}"
+              ]
+            },
+            "description": "Melihat detail data satu karyawan berdasarkan ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Data Karyawan (Update)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Budi Santoso, S.Kom.\",\n  \"email\": \"budi.santoso@mandalamahardika.com\",\n  \"role\": \"EMPLOYEE\",\n  \"is_active\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/employees/{{sample_employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employees",
+                "{{sample_employee_id}}"
+              ]
+            },
+            "description": "Memperbarui nama, email, role, status aktif, atau password karyawan."
+          },
+          "response": []
+        },
+        {
+          "name": "Nonaktifkan Karyawan (Delete)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/employees/{{sample_employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employees",
+                "{{sample_employee_id}}"
+              ]
+            },
+            "description": "Menonaktifkan status aktif akun karyawan (soft deactivate)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Laporan & Ekspor (Reports)",
+      "description": "Laporan absensi dan unduhan file CSV kompatibel Microsoft Excel serta dokumen PDF resmi.",
+      "item": [
+        {
+          "name": "Data Laporan Absensi (JSON)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/reports/attendance?user_id=&start_date=2026-11-01&end_date=2026-11-30&duration_status=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "attendance"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "",
+                  "description": "Filter ID karyawan"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-11-01",
+                  "description": "Tanggal awal"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-11-30",
+                  "description": "Tanggal akhir"
+                },
+                {
+                  "key": "duration_status",
+                  "value": "",
+                  "description": "MEETS_MINIMUM | BELOW_MINIMUM | IN_PROGRESS"
+                }
+              ]
+            },
+            "description": "Mengambil data rekap laporan absensi beserta summary statistik dalam bentuk JSON."
+          },
+          "response": []
+        },
+        {
+          "name": "Ekspor Laporan Format CSV (Excel)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/reports/attendance/export?format=csv&start_date=2026-11-01&end_date=2026-11-30",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "attendance",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "csv",
+                  "description": "csv | pdf"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-11-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-11-30"
+                }
+              ]
+            },
+            "description": "Mengunduh file laporan dalam format CSV ber-BOM UTF-8 (kompatibel langsung dengan Microsoft Excel)."
+          },
+          "response": []
+        },
+        {
+          "name": "Ekspor Laporan Format PDF",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/reports/attendance/export?format=pdf&start_date=2026-11-01&end_date=2026-11-30",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "attendance",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "pdf",
+                  "description": "csv | pdf"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-11-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-11-30"
+                }
+              ]
+            },
+            "description": "Mengunduh dokumen PDF resmi laporan absensi lengkap dengan kop CV Mandala Mahardika dan tabel rekapan."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "7. Pengaturan Sistem (Superadmin)",
+      "description": "Konfigurasi profil organisasi, zona waktu, batas minimal kerja 510 menit, dan aturan bisnis absensi. Khusus Superadmin.",
+      "item": [
+        {
+          "name": "Lihat Profil Organisasi",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/settings/organization",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "settings",
+                "organization"
+              ]
+            },
+            "description": "Membaca profil perusahaan, zona waktu resmi (Asia/Jakarta), dan format ekspor default."
+          },
+          "response": []
+        },
+        {
+          "name": "Ubah Profil Organisasi",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"company_name\": \"CV Mandala Mahardika\",\n  \"timezone\": \"Asia/Jakarta\",\n  \"report_export_format\": \"CSV\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/settings/organization",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "settings",
+                "organization"
+              ]
+            },
+            "description": "Memperbarui data profil organisasi."
+          },
+          "response": []
+        },
+        {
+          "name": "Lihat Konfigurasi Aturan Jam Kerja",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/settings/work-schedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "settings",
+                "work-schedule"
+              ]
+            },
+            "description": "Melihat konfigurasi aturan kerja: durasi minimal (510 menit), izin checkout awal, lintas tengah malam, dan status GPS."
+          },
+          "response": []
+        },
+        {
+          "name": "Ubah Konfigurasi Aturan Jam Kerja",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"minimum_work_duration_minutes\": 510,\n  \"allow_checkout_below_minimum\": true,\n  \"cross_midnight_session_enabled\": true,\n  \"gps_recording_enabled\": true,\n  \"gps_geofence_enabled\": false,\n  \"selfie_camera_only\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/settings/work-schedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "settings",
+                "work-schedule"
+              ]
+            },
+            "description": "Mengubah batas durasi minimal kerja (default: 510 menit = 8 jam 30 menit) dan aturan absensi lainnya."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "8. Log Audit (Superadmin)",
+      "description": "Audit trail jejak aktivitas administratif dan tindakan sensitif. Khusus Superadmin.",
+      "item": [
+        {
+          "name": "Daftar Log Audit (Audit Logs)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/audit-logs?page=1&limit=20&action=&entity_type=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "audit-logs"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "action",
+                  "value": "",
+                  "description": "Filter jenis aksi (e.g., EMPLOYEE_CREATE, UPDATE_SETTING)"
+                },
+                {
+                  "key": "entity_type",
+                  "value": "",
+                  "description": "Filter entitas tabel (e.g., users, system_settings)"
+                }
+              ]
+            },
+            "description": "Melihat daftar rekam jejak audit administratif lengkap dengan snapshot data sebelum dan sesudah perubahan, alamat IP, dan User-Agent."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
+
