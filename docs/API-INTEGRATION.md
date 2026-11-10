@@ -2,8 +2,7 @@
 ## Sistem Absensi Karyawan Berbasis Website (Mobile-First / PWA)
 **Organisasi:** CV Mandala Mahardika  
 **Versi API:** 1.0.0  
-**Base URL (Production Railway):** `https://absensi-karyawan-backend-production.up.railway.app/api/v1`  
-**Base URL (Lokal/Development):** `http://localhost:5000/api/v1`  
+**Base URL:** `https://absensi-karyawan-backend-production.up.railway.app/api/v1`  
 **Format Data:** `application/json` (Kecuali unggahan swafoto kamera live: `multipart/form-data`)
 
 ---
