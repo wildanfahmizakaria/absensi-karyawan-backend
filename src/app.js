@@ -13,6 +13,9 @@ const { ERROR_CODES } = require('./config/constants');
 
 const app = express();
 
+// Trust reverse proxy (Railway, Cloudflare, etc.)
+app.set('trust proxy', 1);
+
 // Security Middlewares
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }
