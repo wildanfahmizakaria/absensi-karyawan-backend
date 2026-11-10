@@ -107,15 +107,16 @@ Pilih salah satu cara tercepat berikut untuk mengeksekusi file `database/databas
 #### Cara 1: Menggunakan Skrip Migrasi Otomatis via Railway CLI (Paling Mudah)
 Dari terminal laptop Anda:
 ```bash
-# 1. Login ke akun Railway (jika belum)
-npx railway login
+# 1. Login ke akun Railway (gunakan scope @railway/cli)
+npx @railway/cli login
 
 # 2. Hubungkan ke project Anda
-npx railway link
+npx @railway/cli link
 
 # 3. Jalankan migrasi langsung ke MySQL Railway:
-npx railway run npm run migrate
+npx @railway/cli run npm run migrate
 ```
+*(Atau pasang CLI secara global: `npm install -g @railway/cli` lalu jalankan `railway login`)*
 Skrip akan otomatis membaca variabel `MYSQL_URL` dari Railway dan mengeksekusi tabel beserta data awal!
 
 #### Cara 2: Import via MySQL Client Langsung
