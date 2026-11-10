@@ -13,11 +13,7 @@ router.post('/check-out', authenticateUser, upload.single('photo'), attendanceCo
 // Today status (for employee action buttons Masuk/Pulang)
 router.get('/today', authenticateUser, attendanceController.getTodayStatus);
 
-// History and detail
-router.get('/', authenticateUser, attendanceController.getAttendanceHistory);
-router.get('/:id', authenticateUser, attendanceController.getAttendanceDetail);
-
-// Attendance Corrections (Database spec Section 5)
+// Attendance Corrections (Database spec Section 5) - must precede /:id to avoid route shadowing
 router.get('/corrections', authenticateUser, correctionController.getCorrections);
 router.post('/corrections', authenticateUser, correctionController.requestCorrection);
 router.patch(
@@ -26,6 +22,10 @@ router.patch(
   requireRole(ROLES.ADMIN, ROLES.SUPERADMIN),
   correctionController.reviewCorrection
 );
+
+// History and detail
+router.get('/', authenticateUser, attendanceController.getAttendanceHistory);
+router.get('/:id', authenticateUser, attendanceController.getAttendanceDetail);
 
 module.exports = router;
 
