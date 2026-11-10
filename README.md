@@ -134,9 +134,9 @@ Server akan aktif di `http://localhost:5000/api/v1`.
 npm run test:api
 ```
 
-### 6. Pengujian dengan Postman / Insomnia
-Impor file [`collection.json`](./collection.json) ke aplikasi Postman atau Insomnia.
-- Variabel `base_url` sudah otomatis disetel ke `http://localhost:5000/api/v1`.
+### 6. Pengujian dengan Postman / Insomnia / Hoppscotch
+Impor file [`collection.json`](./collection.json) ke aplikasi Postman, Insomnia, atau Hoppscotch.
+- Variabel `base_url` sudah otomatis disetel ke Production Railway: `https://absensi-karyawan-backend-production.up.railway.app/api/v1` (atau ubah ke `http://localhost:5000/api/v1` untuk pengujian lokal).
 - Skrip pengujian otomatis pada endpoint **Login** akan secara instan menyimpan JWT access token ke variabel koleksi `{{token}}`, sehingga semua endpoint terproteksi dapat langsung diuji tanpa perlu menyalin token secara manual.
 
 ### 7. Deployment ke Railway
